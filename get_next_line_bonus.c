@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jbremser <jbremser@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:52:33 by jbremser          #+#    #+#             */
-/*   Updated: 2024/01/25 11:50:05 by jbremser         ###   ########.fr       */
+/*   Updated: 2024/01/25 11:50:01 by jbremser         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static void	freenull(char **ptr)
 {
@@ -76,8 +76,7 @@ static char	*trimprefix(char *stash, t_gnl *gnl)
 
 static char	*trimstash(char	*stash, t_gnl *gnl)
 {
-	if (!gnl->line
-		|| !(ft_strchr(stash, '\n'))
+	if (!gnl->line || !(ft_strchr(stash, '\n'))
 		|| (ft_strchr(stash, '\n') && ft_strlen(ft_strchr(stash, '\n')) == 1))
 	{
 		freenull (&stash);
@@ -96,25 +95,25 @@ static char	*trimstash(char	*stash, t_gnl *gnl)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
+	static char	*stash[1024];
 	t_gnl		gnl;
 
 	if (fd < 0 || fd > 1023 || BUFFER_SIZE <= 0)
 		return (NULL);
 	gnl.temp = NULL;
-	if (!ft_strchr(stash, '\n'))
+	if (!ft_strchr(stash[fd], '\n'))
 	{
 		gnl.buffer = malloc(BUFFER_SIZE + 1);
 		if (!gnl.buffer)
 		{
-			if (stash != NULL)
-				freenull(&stash);
+			if (stash[fd] != NULL)
+				freenull(&stash[fd]);
 			return (NULL);
 		}
-		stash = line_read(fd, stash, &gnl);
+		stash[fd] = line_read(fd, stash[fd], &gnl);
 		freenull(&(gnl.buffer));
 	}
-	gnl.line = trimprefix(stash, &gnl);
-	stash = trimstash(stash, &gnl);
+	gnl.line = trimprefix(stash[fd], &gnl);
+	stash[fd] = trimstash(stash[fd], &gnl);
 	return (gnl.line);
 }
